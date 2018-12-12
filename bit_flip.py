@@ -5,13 +5,13 @@ import random
 psi = (basis(2, 0) + basis(2, 1)).unit()
 # Physical qubits
 qubit1, qubit2 = basis(2, 0), basis(2, 0)
-
+# Full state of system
 state = tensor(psi, qubit1, qubit2)
 
 cnot01 = cnot(N=3, control=0, target=1)
 cnot02 = cnot(N=3, control=0, target=2)
 
-# Perform encoding
+# Perform encoding logical -> physical
 state = cnot02 * cnot01 * state
 
 # Syndrome measurements
