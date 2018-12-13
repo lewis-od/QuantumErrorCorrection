@@ -1,6 +1,5 @@
 from qutip import *
 import random
-import copy
 
 # Logical state to encode
 psi = (basis(2, 0) + basis(2, 1)).unit()
