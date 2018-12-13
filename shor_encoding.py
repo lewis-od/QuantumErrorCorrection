@@ -64,7 +64,32 @@ for n in range(3): # n labels which block we're checking
     # Apply correction
     state = tensor(correction) * state
 
-# TODO: Correct phase flip error
+# Detect phase-flip error
+sigmax3 = tensor([sigmax()] * 3) # Block level sigmax
+measurements = [0, 0, 0]
+for n in range(3):
+    X = [I3, I3, I3]
+    X[n] = sigmax3 # sigmax on block n
+    X = tensor(X)
+    measurements[n] = X * state
+
+# Correct phase-flip error
+sigmaz3 = tensor([sigmaz()] * 3) # Block level sigmaz
+correction = [I3, I3, I3]
+if measurements[0] == measurements[1]:
+    if measurements[1] == measurements[2]:
+        print("No phase-flip error")
+    else:
+        print("Error detected: phase-flip on block 2")
+        correction[2] = sigmaz3
+else:
+    if measurements[0] == measurements[2]:
+        print("Error detected: phase-flip on block 1")
+        correction[1] = sigmaz3
+    else:
+        print("Error detected: phase-flip on block 0")
+        correction[0] = sigmaz3
+state = tensor(correction) * state
 
 # Decode bit-flip code on each group of 3 qubits
 state = cnot(9, target=2, control=0) * cnot(9, target=1, control=0) * state
