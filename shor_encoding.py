@@ -30,7 +30,8 @@ print("Causing error on qubit {}".format(error_qubit))
 error_op = tensor(error_ops)
 state = error_op * state
 
-# Correct bit-flip errors
+# Correct bit-flip errors - can correct one per block of 3
+# Define block-level operations
 I3 = tensor([qeye(2)]*3) # Identity on 3 qubits
 # Syndrome measurement on each block of 3
 A = tensor(sigmaz(), sigmaz(), qeye(2))
@@ -52,13 +53,13 @@ for n in range(3): # n labels which block we're checking
     if a == 1 and b == 1:
         print("No error on block {}".format(n))
     elif a == 1 and b == -1:
-        correction[3*n+2] = sigmaz()
+        correction[3*n+2] = sigmax()
         print("Error detected: bit flip on qubit 2 of block {}".format(n))
     elif a == -1 and b == 1:
-        correction[3*n] = sigmaz()
+        correction[3*n] = sigmax()
         print("Error detected: bit flip on qubit 0 of block {}".format(n))
     else: # a == b == -1
-        correction[3*n+1] = sigmaz()
+        correction[3*n+1] = sigmax()
         print("Error detected: bit flip on qubit 1 of block {}".format(n))
     # Apply correction
     state = tensor(correction) * state
