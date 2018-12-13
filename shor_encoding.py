@@ -22,13 +22,19 @@ state = cnot(9, target=4, control=3) * cnot(9, target=5, control=3) * state
 state = cnot(9, target=7, control=6) * cnot(9, target=8, control=6) * state
 
 # Cause random bit-flip and phase-flip error
-# TODO: Make this so that bit-flip and phase-flip can be on different qubits
-error_ops = [qeye(2)]*8 + [sigmaz()*sigmax()]
-random.shuffle(error_ops)
-error_qubit = error_ops.index(sigmaz()*sigmax())
-print("Causing error on qubit {}".format(error_qubit))
-error_op = tensor(error_ops)
-state = error_op * state
+phase_qubit = random.randint(0, 8) # qubit to phase-flip
+print("Phase-flippping qubit {}".format(phase_qubit))
+phase_error = tensor(
+    [sigmaz() if n == phase_qubit else qeye(2) for n in range(9)]
+)
+state = phase_error * state
+
+flip_qubit = random.randint(0, 8) # qubit to bit-flip
+print("Bit-flipping qubit {}".format(flip_qubit))
+flip_error = tensor(
+    [sigmax() if n == flip_qubit else qeye(2) for n in range(9)]
+)
+state = flip_error * state
 
 # Correct bit-flip errors - can correct one per block of 3
 # Define block-level operations
@@ -51,16 +57,16 @@ for n in range(3): # n labels which block we're checking
     # Determine correction
     correction = [qeye(2)]*9
     if a == 1 and b == 1:
-        print("No error on block {}".format(n))
+        print("No bit-flip error on block {}".format(n))
     elif a == 1 and b == -1:
         correction[3*n+2] = sigmax()
-        print("Error detected: bit flip on qubit 2 of block {}".format(n))
+        print("Error detected: bit-flip on qubit 2 of block {}".format(n))
     elif a == -1 and b == 1:
         correction[3*n] = sigmax()
-        print("Error detected: bit flip on qubit 0 of block {}".format(n))
+        print("Error detected: bit-flip on qubit 0 of block {}".format(n))
     else: # a == b == -1
         correction[3*n+1] = sigmax()
-        print("Error detected: bit flip on qubit 1 of block {}".format(n))
+        print("Error detected: bit-flip on qubit 1 of block {}".format(n))
     # Apply correction
     state = tensor(correction) * state
 
