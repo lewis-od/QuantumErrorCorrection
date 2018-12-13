@@ -22,19 +22,16 @@ state = cnot(9, target=4, control=3) * cnot(9, target=5, control=3) * state
 state = cnot(9, target=7, control=6) * cnot(9, target=8, control=6) * state
 
 # Cause random bit-flip and phase-flip error
+error_op = [qeye(2)]*9
 phase_qubit = random.randint(0, 8) # qubit to phase-flip
 print("Phase-flippping qubit {}".format(phase_qubit))
-phase_error = tensor(
-    [sigmaz() if n == phase_qubit else qeye(2) for n in range(9)]
-)
-state = phase_error * state
+error_op[phase_qubit] *= sigmaz()
 
 flip_qubit = random.randint(0, 8) # qubit to bit-flip
 print("Bit-flipping qubit {}".format(flip_qubit))
-flip_error = tensor(
-    [sigmax() if n == flip_qubit else qeye(2) for n in range(9)]
-)
-state = flip_error * state
+error_op[flip_qubit] *= sigmax()
+
+state = tensor(error_op) * state
 
 # Correct bit-flip errors - can correct one per block of 3
 # Define block-level operations
